@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BookRepositoryMySQL implements BookRepository {
+public class BookRepositoryMySQL implements BookRepository{
 
     private final Connection connection;
 
@@ -78,7 +78,7 @@ public class BookRepositoryMySQL implements BookRepository {
 
     @Override
     public boolean save(Book book) {
-        String sql = "INSERT INTO book VALUES(null, ?, ?, ?);";
+        String sql = "INSERT INTO book VALUES(null, ?, ?, ?, ?, ?);";
 
         String newSql = "INSERT INTO book VALUES(null, \'" + book.getAuthor() +"\', \'"+ book.getTitle()+"\', null );";
 
@@ -92,6 +92,8 @@ public class BookRepositoryMySQL implements BookRepository {
             preparedStatement.setString(1, book.getAuthor());
             preparedStatement.setString(2, book.getTitle());
             preparedStatement.setDate(3, java.sql.Date.valueOf(book.getPublishedDate()));
+            preparedStatement.setFloat(4, book.getPrice());
+            preparedStatement.setInt(5, book.getStock());
 
             int rowsInserted = preparedStatement.executeUpdate();
 
@@ -122,6 +124,8 @@ public class BookRepositoryMySQL implements BookRepository {
                 .setTitle(resultSet.getString("title"))
                 .setAuthor(resultSet.getString("author"))
                 .setPublishedDate(new java.sql.Date(resultSet.getDate("publishedDate").getTime()).toLocalDate())
+                .setPrice(Integer.parseInt(resultSet.getString("price")))
+                .setStock(Integer.parseInt(resultSet.getString("stock")))
                 .build();
     }
 }

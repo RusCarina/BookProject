@@ -1,7 +1,6 @@
 package repository.book;
 
 import model.Book;
-import repository.Cache;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +16,7 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator{
     @Override
     public List<Book> findAll() {
         if (cache.hasResult()){
-            return cache.load();
+           return cache.load();
         }
 
         List<Book> books = decoratedRepository.findAll();

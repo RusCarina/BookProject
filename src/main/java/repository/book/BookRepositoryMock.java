@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BookRepositoryMock implements BookRepository {
+public class BookRepositoryMock implements BookRepository{
 
     private List<Book> books;
 
