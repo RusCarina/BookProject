@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import model.Book;
@@ -8,6 +9,7 @@ import view.CustomerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class CustomerController {
     private final CustomerView customerView;
@@ -18,7 +20,7 @@ public class CustomerController {
         this.customerView = customerView;
         this.bookService = bookService;
 
-        //this.customerView.buyHandler(new BuyBook());
+        this.customerView.addBuyButtonListener(new BuyBook());
         this.customerView.showAllBooks(new ViewAllBooks());
     }
 
@@ -36,19 +38,37 @@ public class CustomerController {
         private int stock;
         private Book selectedBook;
         private int price = 0;
+        private int quantity = 0;
+        private String author;
+        //private ObservableList<Book> books;
         @Override
         public void handle(ActionEvent event) {
             selectedBook = customerView.getSelectedBook();
-            //booksInCart.add(selectedBook);
+            booksInCart.add(selectedBook);
             title = selectedBook.getTitle();
             stock = selectedBook.getStock();
+            author = selectedBook.getAuthor();
+
 
             if(stock > 0){
-                selectedBook.setStock(stock - 1);
-                customerView.setCartArea(title);
+                if(Objects.equals(customerView.getQuantityText(), "")){
+                    customerView.setCartArea("Introduce a quantity!\n");
+                }
+                else {
+                    quantity = Integer.parseInt(customerView.getQuantityText());
+                    customerView.setCartArea(title + ", " + author + ", Quantity: " + quantity + "\n");
 
-                price += selectedBook.getPrice();
-                customerView.setPriceTotal(price);
+                    price += selectedBook.getPrice() * quantity;
+                    customerView.setPriceTotal(price);
+
+                    selectedBook.setStock(stock - quantity);
+
+                    //bookService.findById(selectedBook.getId()).setStock(stock - quantity);
+                    bookService.updateDatabse(selectedBook.getId(), stock - quantity, title);
+                    List<Book>books = bookService.findAll();
+                    customerView.setBooksData(books);
+                }
+
             }
             else {
                 customerView.setCartArea("Sold out!");

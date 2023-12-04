@@ -49,4 +49,9 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator{
         cache.invalidateCache();
         decoratedRepository.removeAll();
     }
+
+    @Override
+    public boolean updateDatabse(Long id, int stock, String title){
+        return false;
+    }
 }

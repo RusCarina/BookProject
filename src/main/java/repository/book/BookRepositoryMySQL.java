@@ -118,6 +118,24 @@ public class BookRepositoryMySQL implements BookRepository{
         }
     }
 
+    @Override
+    public boolean updateDatabse(Long id, int stock, String title) {
+        String updateSql = "UPDATE book SET stock = ?, title = ? WHERE id = ?";
+
+        try {
+            PreparedStatement updateStatement = connection.prepareStatement(updateSql);
+            updateStatement.setInt(1, stock);
+            updateStatement.setString(2, title);
+            updateStatement.setLong(3, id);
+
+            int rowsUpdated = updateStatement.executeUpdate();
+            return (rowsUpdated != 1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private Book getBookFromResultSet(ResultSet resultSet) throws SQLException{
         return new BookBuilder()
                 .setId(resultSet.getLong("id"))
@@ -128,4 +146,6 @@ public class BookRepositoryMySQL implements BookRepository{
                 .setStock(Integer.parseInt(resultSet.getString("stock")))
                 .build();
     }
+
+
 }

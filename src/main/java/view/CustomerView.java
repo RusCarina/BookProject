@@ -1,7 +1,6 @@
 package view;
 
 
-import controller.CustomerController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -39,6 +38,9 @@ public class CustomerView {
     private TableColumn<Book, LocalDate> pubDateColumn;
     private TableColumn<Book, Button> buyColumn;
     private ObservableList<Book> booksList;
+    private EventHandler<ActionEvent> buyHandler;
+    //final Button buyButton = new Button("Buy");
+    private TextField quantityField;
 
     public CustomerView(Stage primaryStage) {
         primaryStage.setTitle("Book Store");
@@ -66,9 +68,9 @@ public class CustomerView {
     }
 
     private void initializeSceneTitle(GridPane gridPane) {
-        Text sceneTitle = new Text("Our book colection");
+        Text sceneTitle = new Text("Our book collection:");
         sceneTitle.setFont(Font.font("Tahome", FontWeight.NORMAL, 20));
-        gridPane.add(sceneTitle, 0, 0, 1, 3);
+        gridPane.add(sceneTitle, 0, 0, 1, 2);
     }
 
     private void initializeTableView(GridPane gridPane) {
@@ -80,7 +82,6 @@ public class CustomerView {
         pubDateColumn = new TableColumn<>("Published Date");
         priceColumn = new TableColumn<>("Price");
         stockColumn = new TableColumn<>("Stock");
-        buyColumn = new TableColumn<>("Buy");
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
@@ -89,37 +90,6 @@ public class CustomerView {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         stockColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
-        //bibliografie pentru codul de mai jos
-        //https://stackoverflow.com/questions/29489366/how-to-add-button-in-javafx-table-view
-        Callback<TableColumn<Book, Button>, TableCell<Book, Button>> cellFactory
-                = //
-                new Callback<TableColumn<Book, Button>, TableCell<Book, Button>>() {
-                    @Override
-                    public TableCell call(final TableColumn<Book, Button> param) {
-                        final TableCell<Book, Button> cell = new TableCell<Book, Button>() {
-
-                            final Button buyButton = new Button("Buy");
-
-                            @Override
-                            protected void updateItem(Button item, boolean empty) {
-                                super.updateItem(item, empty);
-                                if (empty) {
-                                    setGraphic(null);
-                                } else {
-                                    buyButton.setOnAction(event -> {
-                                        Book book = getTableView().getItems().get(getIndex());
-                                        
-                                    });
-                                    setGraphic(buyButton);
-                                }
-
-                            }
-                        };
-                        return cell;
-                    }
-                };
-
-        buyColumn.setCellFactory(cellFactory);
 
         table.getColumns().add(idColumn);
         table.getColumns().add(titleColumn);
@@ -127,28 +97,41 @@ public class CustomerView {
         table.getColumns().add(pubDateColumn);
         table.getColumns().add(priceColumn);
         table.getColumns().add(stockColumn);
-        table.getColumns().add(buyColumn);
-        gridPane.add(table,2, 4, 25,25);//1:0
+        gridPane.add(table,0, 7, 25,25);//1:0
 
         VBox tableViewBox = new VBox(10);
         tableViewBox.getChildren().add(table);
 
-        showAllBooksButton = new Button("See out book colection");
+        showAllBooksButton = new Button("See out book collection");
 
         HBox viewAllBooksHBox = new HBox(10);
         viewAllBooksHBox.setAlignment(Pos.BOTTOM_LEFT);
         viewAllBooksHBox.getChildren().add(showAllBooksButton);
-        gridPane.add(viewAllBooksHBox, 5, 1);
+        gridPane.add(viewAllBooksHBox, 0, 3);
+
+
 
         //HBox buyButtonHBox = new HBox(10);
         //buyButtonHBox.setAlignment(Pos.BOTTOM_LEFT);
 
         //gridPane.add(buyButtonHBox, 0,20,2,1);
-        gridPane.add(tableViewBox, 0, 5, 10, 20);
+        gridPane.add(tableViewBox, 0, 4, 10, 10);
 
     }
 
     private void initializeFields(GridPane gridPane) {
+        buyButton = new Button("Buy");
+        HBox buyBooksHBox = new HBox(10);
+        buyBooksHBox.setAlignment(Pos.BOTTOM_LEFT);
+        buyBooksHBox.getChildren().add(buyButton);
+        gridPane.add(buyBooksHBox, 3, 17);
+
+        Label quantityLabel = new Label("Quantity: ");
+        gridPane.add(quantityLabel, 0 ,17);
+
+        quantityField = new TextField();
+        gridPane.add(quantityField, 1,17);
+
         cartArea = new TextArea();
         cartArea.setEditable(false);
         cartArea.setText("Your cart: \n");
@@ -156,10 +139,10 @@ public class CustomerView {
         HBox buttonsHBox = new HBox(5);
         buttonsHBox.setAlignment(Pos.BOTTOM_CENTER);
         buttonsHBox.getChildren().addAll(cartArea);
-        gridPane.add(buttonsHBox, 0, 27, 2, 5);
+        gridPane.add(buttonsHBox, 0,18, 2, 10);
 
         totalPriceLabel = new Label("Total price: ");
-        gridPane.add(totalPriceLabel, 0, 32, 5, 1);
+        gridPane.add(totalPriceLabel, 0, 29, 5, 1);
     }
 
     public void setBooksData(List<Book> books) {
@@ -176,20 +159,30 @@ public class CustomerView {
     }
 
     public void setPriceTotal(int price){
-        totalPriceLabel.setText(totalPriceLabel.getText() + price);
-    }
-
-    public Book getSelectedBook(){
-        Book selectedItem = table.getSelectionModel().getSelectedItem();
-        return selectedItem;
+        totalPriceLabel.setText("Total price: " + price);
     }
 
     public void addBuyButtonListener(EventHandler<ActionEvent> buyButtonHandler) {
-        //buyButton.setOnAction(buyButtonHandler);
+        buyButton.setOnAction(buyButtonHandler);
+    }
+
+//    public void setBuyButtonHandler(EventHandler<ActionEvent> buyButtonHandler) {
+//        buyColumn.setOnAction(buyButtonHandler);
+//    }
+
+    public void setBuyEvent(EventHandler<ActionEvent> buyButtonHandler){
+        buyHandler = buyButtonHandler;
+    }
+
+    public Book getSelectedBook(){
+        return table.getSelectionModel().getSelectedItem();
+    }
+
+    public String getQuantityText(){
+        return quantityField.getText();
     }
 
 }
-
 
 
 

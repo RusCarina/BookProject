@@ -13,4 +13,7 @@ public interface BookService {
     boolean save(Book book);
 
     int getAgeOfBook(Long id);
+
+    boolean updateDatabse(Long id, int stock, String title);
+
 }

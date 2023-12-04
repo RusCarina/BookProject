@@ -14,4 +14,6 @@ public interface BookRepository {
 
     void removeAll();
 
+    boolean updateDatabse(Long id, int stock, String title);
+
 }
