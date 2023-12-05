@@ -1,4 +1,5 @@
 package repository.user;
+import model.Role;
 import model.User;
 import model.builder.UserBuilder;
 import model.validator.Notification;
@@ -9,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import static database.Constants.Tables.USER;
@@ -27,7 +29,23 @@ public class UserRepositoryMySQL implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return null;
+        String sql = "SELECT * FROM user;";
+
+        List<User> users = new ArrayList<>();
+
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()){
+                users.add(getUserFromResultSet(resultSet));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return users;
     }
 
     // SQL Injection Attacks should not work after fixing functions
@@ -116,6 +134,118 @@ public class UserRepositoryMySQL implements UserRepository {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public List<Role> findAllRoles() {
+        String sql = "SELECT * FROM user_role;";
+
+        List<Role> users = new ArrayList<>();
+
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()){
+                //users.add(getUserFromResultSet(resultSet));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return users;
+    }
+
+    private User getUserFromResultSet(ResultSet resultSet) throws SQLException{
+        return new UserBuilder()
+                .setId(resultSet.getLong("id"))
+                .setUsername(resultSet.getString("username"))
+                .setPassword(resultSet.getString("password"))
+                //.setRoles(new java.sql.Date(resultSet.getDate("publishedDate").getTime()).toLocalDate())
+                .build();
+    }
+
+    @Override
+    public User findById(Long id) {
+        String sql = "SELECT * FROM user WHERE id = ?";
+        User user = new User();
+
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1, id);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()){
+                user = getUserFromResultSet(resultSet);
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        return user;
+    }
+
+    @Override
+    public void remove(Long id) {
+        try {
+            String sql = "DELETE FROM user WHERE id = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setLong(1, id);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean updateDatabase(Long id, String username, String password) {
+        String updateSql = "UPDATE user SET username = ?, password = ? WHERE id = ?";
+
+        try {
+            PreparedStatement updateStatement = connection.prepareStatement(updateSql);
+            updateStatement.setString(1, username);
+            updateStatement.setString(2, password);
+            updateStatement.setLong(3, id);
+
+            int rowsUpdated = updateStatement.executeUpdate();
+            return (rowsUpdated != 1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public List<User> findAllEmployees() {
+        String sql = "SELECT u.* FROM user u " +
+                "JOIN user_role ur ON u.id = ur.user_id " +
+                "WHERE ur.role_id = ?";
+
+        //String sql = "SELECT user_id FROM user_role WHERE role_id = ?;";
+
+        List<User> users = new ArrayList<>();
+
+        long role_id = 2;
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1, role_id);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()){
+                users.add(getUserFromResultSet(resultSet));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return users;
     }
 
 }

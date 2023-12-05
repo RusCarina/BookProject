@@ -2,6 +2,7 @@ package repository.book;
 
 import model.Book;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +41,18 @@ public class BookRepositoryMock implements BookRepository{
     public boolean updateDatabse(Long id, int stock, String title){
         return false;
     }
+
+    @Override
+    public Book addNewBook(String author, String title, LocalDate date, int price, int quantity) {
+        return null;
+    }
+
+    @Override
+    public void remove(Long id) {}
+
+    @Override
+    public boolean updateDatabasePS(Long id, int price, int stock) {
+        return false;
+    }
+
 }

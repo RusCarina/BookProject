@@ -25,6 +25,7 @@ public class LoginView {
     private Button signInButton;
     private Button logInButton;
     private Text actiontarget;
+    private Stage stage;
 
     public LoginView(Stage primaryStage) {
         primaryStage.setTitle("Book Store");
@@ -98,8 +99,11 @@ public class LoginView {
     public void addLoginButtonListener(EventHandler<ActionEvent> loginButtonListener) {
         logInButton.setOnAction(loginButtonListener);
     }
-
     public void addRegisterButtonListener(EventHandler<ActionEvent> signInButtonListener) {
         signInButton.setOnAction(signInButtonListener);
+    }
+    public void closeLogIn() {
+        stage = (Stage) logInButton.getScene().getWindow();
+        stage.close();
     }
 }

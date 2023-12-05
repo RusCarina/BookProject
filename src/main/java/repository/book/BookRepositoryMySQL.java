@@ -4,6 +4,7 @@ import model.Book;
 import model.builder.BookBuilder;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -147,5 +148,49 @@ public class BookRepositoryMySQL implements BookRepository{
                 .build();
     }
 
+    @Override
+    public Book addNewBook(String author, String title, LocalDate date, int price, int stock) {
+        Book book = new BookBuilder()
+                //.setId(id)
+                .setTitle(author)
+                .setAuthor(title)
+                .setPublishedDate(date)
+                .setPrice(price)
+                .setStock(stock)
+                .build();
+        save(book);
+        return book;
+    }
+
+    @Override
+    public void remove(Long id) {
+        try {
+            String sql = "DELETE FROM book WHERE id = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setLong(1, id);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean updateDatabasePS(Long id, int price, int stock) {
+        String updateSql = "UPDATE book SET price = ?, stock = ? WHERE id = ?";
+
+        try {
+            PreparedStatement updateStatement = connection.prepareStatement(updateSql);
+            updateStatement.setInt(1, price);
+            updateStatement.setInt(2, stock);
+            updateStatement.setLong(3, id);
+
+            int rowsUpdated = updateStatement.executeUpdate();
+            return (rowsUpdated != 1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

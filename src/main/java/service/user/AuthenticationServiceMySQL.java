@@ -10,24 +10,85 @@ import repository.user.UserRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collections;
+import java.util.List;
 
-import static database.Constants.Roles.CUSTOMER;
+import static database.Constants.Roles.*;
 
 public class AuthenticationServiceMySQL implements AuthenticationService {
 
     private final UserRepository userRepository;
     private final RightsRolesRepository rightsRolesRepository;
+    private final Connection connection;
 
-    public AuthenticationServiceMySQL(UserRepository userRepository, RightsRolesRepository rightsRolesRepository) {
+
+    public AuthenticationServiceMySQL(UserRepository userRepository, RightsRolesRepository rightsRolesRepository, Connection connection) {
         this.userRepository = userRepository;
         this.rightsRolesRepository = rightsRolesRepository;
+        this.connection = connection;
     }
 
     @Override
-    public Notification<Boolean> register(String username, String password) {
+    public Notification<Boolean> registerCustomer(String username, String password) {
 
         Role customerRole = rightsRolesRepository.findRoleByTitle(CUSTOMER);
+
+        User user = new UserBuilder()
+                .setUsername(username)
+                .setPassword(password)
+                .setRoles(Collections.singletonList(customerRole))
+                .build();
+
+        UserValidator userValidator = new UserValidator(user);
+
+        boolean userValid = userValidator.validate();
+        Notification<Boolean> userRegisterNotification = new Notification<>();
+
+        if (!userValid){
+            userValidator.getErrors().forEach(userRegisterNotification::addError);
+            userRegisterNotification.setResult(Boolean.FALSE);
+        } else {
+            user.setPassword(hashPassword(password));
+            userRegisterNotification.setResult(userRepository.save(user));
+        }
+
+        return userRegisterNotification;
+    }
+
+    @Override
+    public Notification<Boolean> registerAdministrator(String username, String password) {
+
+        Role customerRole = rightsRolesRepository.findRoleByTitle(ADMINISTRATOR);
+
+        User user = new UserBuilder()
+                .setUsername(username)
+                .setPassword(password)
+                .setRoles(Collections.singletonList(customerRole))
+                .build();
+
+        UserValidator userValidator = new UserValidator(user);
+
+        boolean userValid = userValidator.validate();
+        Notification<Boolean> userRegisterNotification = new Notification<>();
+
+        if (!userValid){
+            userValidator.getErrors().forEach(userRegisterNotification::addError);
+            userRegisterNotification.setResult(Boolean.FALSE);
+        } else {
+            user.setPassword(hashPassword(password));
+            userRegisterNotification.setResult(userRepository.save(user));
+        }
+
+        return userRegisterNotification;
+    }
+
+    @Override
+    public Notification<Boolean> registerEmployee(String username, String password) {
+
+        Role customerRole = rightsRolesRepository.findRoleByTitle(EMPLOYEE);
 
         User user = new UserBuilder()
                 .setUsername(username)
@@ -81,4 +142,54 @@ public class AuthenticationServiceMySQL implements AuthenticationService {
             throw new RuntimeException(ex);
         }
     }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public User findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public List<Role> findAllRoles(){
+        return userRepository.findAllRoles();
+    }
+//
+//    public void remove(Long id){
+//        userRepository.remove(id);
+//    }
+
+    @Override
+    public boolean updateEmployee(Long id, String username, String password) {
+        String updateSql = "UPDATE user SET username = ?, password = ? WHERE id = ?";
+
+        try {
+            PreparedStatement updateStatement = connection.prepareStatement(updateSql);
+            updateStatement.setString(1, username);
+            updateStatement.setString(2, hashPassword(password));
+            updateStatement.setLong(3, id);
+
+            int rowsUpdated = updateStatement.executeUpdate();
+            return (rowsUpdated != 1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void remove(Long id){
+        userRepository.remove(id);
+    }
+
+    @Override
+    public boolean updateDatabase(Long id, String username, String password) {
+        return userRepository.updateDatabase(id, username, hashPassword(password));
+    }
+
+    public List<User> findAllEmployees(){
+        return userRepository.findAllEmployees();
+    }
+
 }

@@ -51,6 +51,11 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator{
     }
 
     @Override
+    public boolean updateDatabasePS(Long id, int price, int stock) {
+        return false;
+    }
+
+    @Override
     public boolean updateDatabse(Long id, int stock, String title){
         return false;
     }

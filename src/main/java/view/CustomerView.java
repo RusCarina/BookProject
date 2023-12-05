@@ -24,8 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class CustomerView {
-    private Button addToCartButton;
-    private Button viewCartButton;
+
     private Button showAllBooksButton;
     private Button buyButton;
     private TextArea cartArea;
@@ -36,10 +35,7 @@ public class CustomerView {
     private TableColumn<Book, String> titleColumn, authorColumn;
     private TableColumn<Book, Integer> priceColumn;
     private TableColumn<Book, LocalDate> pubDateColumn;
-    private TableColumn<Book, Button> buyColumn;
     private ObservableList<Book> booksList;
-    private EventHandler<ActionEvent> buyHandler;
-    //final Button buyButton = new Button("Buy");
     private TextField quantityField;
 
     public CustomerView(Stage primaryStage) {
@@ -90,7 +86,6 @@ public class CustomerView {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         stockColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
-
         table.getColumns().add(idColumn);
         table.getColumns().add(titleColumn);
         table.getColumns().add(authorColumn);
@@ -109,12 +104,6 @@ public class CustomerView {
         viewAllBooksHBox.getChildren().add(showAllBooksButton);
         gridPane.add(viewAllBooksHBox, 0, 3);
 
-
-
-        //HBox buyButtonHBox = new HBox(10);
-        //buyButtonHBox.setAlignment(Pos.BOTTOM_LEFT);
-
-        //gridPane.add(buyButtonHBox, 0,20,2,1);
         gridPane.add(tableViewBox, 0, 4, 10, 10);
 
     }
@@ -164,14 +153,6 @@ public class CustomerView {
 
     public void addBuyButtonListener(EventHandler<ActionEvent> buyButtonHandler) {
         buyButton.setOnAction(buyButtonHandler);
-    }
-
-//    public void setBuyButtonHandler(EventHandler<ActionEvent> buyButtonHandler) {
-//        buyColumn.setOnAction(buyButtonHandler);
-//    }
-
-    public void setBuyEvent(EventHandler<ActionEvent> buyButtonHandler){
-        buyHandler = buyButtonHandler;
     }
 
     public Book getSelectedBook(){
