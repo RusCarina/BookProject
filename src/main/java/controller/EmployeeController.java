@@ -1,5 +1,9 @@
 package controller;
 
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import model.Book;
@@ -10,6 +14,9 @@ import service.user.AuthenticationService;
 import view.CustomerView;
 import view.EmployeeView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,12 +26,16 @@ import java.util.Objects;
 public class EmployeeController {
     private final EmployeeView employeeView;
     private final BookService bookService;
-    private final List<User> selectedUsers;
-    private int finishCounter =0;
-    List<Book> addedToCartBooks = new ArrayList<>();
+    private final List<Book> selectedBooks;
 
-    public EmployeeController(EmployeeView employeeView, BookService bookService, List<User> selectedUsers) {
-        this.selectedUsers = selectedUsers;
+    private final String pdfFilePath = "Raport_Vanzari_1" +  ".pdf";
+
+    private List<Book> selectedBooksList;
+
+
+
+    public EmployeeController(EmployeeView employeeView, BookService bookService, List<Book> selectedBooks) {
+        this.selectedBooks = selectedBooks;
         this.employeeView = employeeView;
         this.bookService = bookService;
 
@@ -34,6 +45,37 @@ public class EmployeeController {
         this.employeeView.addDeleteButtonListener(new EmployeeController.DeleteButtonHandler());
         this.employeeView.addShowAllListener(new EmployeeController.ShowAllHandler());
         this.employeeView.addSellButtonListener(new EmployeeController.SellButtonHandler());
+        this.employeeView.addGenerateReportListener(new EmployeeController.ReportHandler());
+
+    }
+
+    private class ReportHandler implements EventHandler<ActionEvent> {
+
+        private List<Book> books;
+        @Override
+        public void handle(ActionEvent event) {
+            System.out.println(selectedBooks);
+            try {
+                PdfWriter writer = new PdfWriter(pdfFilePath);
+                PdfDocument pdfDocument = new PdfDocument(writer);
+                Document document = new Document(pdfDocument);
+
+                document.add(new Paragraph("Sold Books Report"));
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+                for (Book soldBook : selectedBooks) {
+                    document.add(new Paragraph("Title: " + soldBook.getTitle()));
+                    document.add(new Paragraph("Author: " + soldBook.getAuthor()));
+                    document.add(new Paragraph("Price: " + soldBook.getPrice()));
+                    document.add(new Paragraph("-------------"));
+                }
+
+                document.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
@@ -52,20 +94,10 @@ public class EmployeeController {
         @Override
         public void handle(ActionEvent event) {
 
-            //List<Book> books;
-            //books = bookService.findAll();
-            //int ok = 0;
-
             String title = employeeView.getTitle();
             String author = employeeView.getAuthor();
-            //String date = employeeView.getDate();
             int price = Integer.parseInt(employeeView.getPrice());
             int stock = Integer.parseInt(employeeView.getStock());
-            //LocalDate datesql = new java.sql.Date(2002,10,14).toLocalDate();
-
-
-            //String datestr = employeeView.getDate();
-            //LocalDate date = new LocalDate();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String date = employeeView.getDate();;
@@ -109,9 +141,6 @@ public class EmployeeController {
         @Override
         public void handle(ActionEvent event) {
 
-            //List<User> users;
-            //users = authenticationService.findAll();
-
             if (Objects.equals(employeeView.getIdUpdate(), "Id not found!")) {
 
                 employeeView.setIdUpdate("Id not found!");
@@ -121,15 +150,6 @@ public class EmployeeController {
                 book = bookService.findById(id);
                 price = Integer.parseInt(employeeView.getUpdatePrice());
                 stock = Integer.parseInt(employeeView.getUpdateStock());
-
-               // boolean registerNotification = bookService.updateEmployee(id, username, password);
-
-                //if (registerNotification){
-//                    employeeView.setActionTarget2("Something went wrong!");
-//                }
-//                else {
-//                    employeeView.setActionTarget2("Price and Stock updated!");
-                //}
 
                 bookService.updateDatabasePS(book.getId(), price, stock);
                 List<Book> books = bookService.findAll();
@@ -154,11 +174,13 @@ public class EmployeeController {
     }
 
     public class SellButtonHandler implements EventHandler<ActionEvent>{
+
         @Override
         public void handle(ActionEvent event) {
             Book selectedBook = employeeView.getSelectedBook();
             int stock = selectedBook.getStock();
             String title = selectedBook.getTitle();
+            String author = selectedBook.getAuthor();
             if (stock<1){
                 employeeView.setActionTarget3("Not enough books!");
             }
@@ -171,11 +193,16 @@ public class EmployeeController {
 
                 bookService.updateDatabse(selectedBook.getId(), newStock, title);
 
+                selectedBooks.add(selectedBook);
+
+
                 List<Book> books = bookService.findAll();
                 employeeView.setBooksData(books);
             }
         }
     }
+
+
 
 
 }

@@ -60,6 +60,8 @@ public class EmployeeView {
 
     private Button sellButton;
 
+    private Button generateReportButton;
+
     public EmployeeView(Stage primaryStage) {
         primaryStage.setTitle("Book Store - Employee");
 
@@ -234,7 +236,16 @@ public class EmployeeView {
         actiontarget3 = new Text();
         actiontarget3.setFill(Color.FIREBRICK);
         gridPane.add(actiontarget3, 1, 33);
+
+        generateReportButton = new Button("Report");
+        gridPane.add(generateReportButton,0,34);
+
     }
+
+    public void addGenerateReportListener(EventHandler<ActionEvent> reportHandler) {
+        generateReportButton.setOnAction(reportHandler);
+    }
+
 
     public void addShowAllListener(EventHandler<ActionEvent> showAllHandler) {
         showAllBooksButton.setOnAction(showAllHandler);

@@ -44,7 +44,7 @@ public class LoginController {
 
 //            username = "admin@admin";
 //            password = "adminadmin.1";
-
+//
 //            username = "empl1@empl";
 //            password = "employee.1";
 
@@ -99,7 +99,7 @@ public class LoginController {
     private void openAdministratorView(){
 
         AdministratorView administratorView = new AdministratorView(new Stage());
-        List<User> selected = new ArrayList<>();
+        List<String> selected = new ArrayList<>();
         AdministratorController adminController = new AdministratorController(administratorView, authenticationService, selected);
 
     }
@@ -107,7 +107,7 @@ public class LoginController {
     private void openEmployeeView(){
 
         EmployeeView employeeView = new EmployeeView(new Stage());
-        List<User> selected = new ArrayList<>();
+        List<Book> selected = new ArrayList<>();
         EmployeeController employeeController = new EmployeeController(employeeView, bookService, selected);
 
     }

@@ -51,6 +51,9 @@ public class AdministratorView {
     private Text actiontarget1;
     private Text actiontarget2;
 
+    private Button generateReportButton;
+
+
     public AdministratorView(Stage primaryStage) {
         primaryStage.setTitle("Book Store - Administrator");
 
@@ -125,7 +128,7 @@ public class AdministratorView {
 
         Label pass = new Label("Password:");
         gridPane.add(pass, 0, 11);
-        createPasswordTextField = new TextField();
+        createPasswordTextField = new PasswordField();
         gridPane.add(createPasswordTextField, 1, 11);
 
         actiontarget1 = new Text();
@@ -186,7 +189,13 @@ public class AdministratorView {
         deleteButton = new Button("Delete");
         gridPane.add(deleteButton,0,26);
 
+        generateReportButton = new Button("Report");
+        gridPane.add(generateReportButton,0,34);
 
+    }
+
+    public void addGenerateReportListener(EventHandler<ActionEvent> reportHandler) {
+        generateReportButton.setOnAction(reportHandler);
     }
 
     public void addShowAllListener(EventHandler<ActionEvent> showAllHandler) {
