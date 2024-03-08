@@ -1,2 +1,2 @@
 # BookProject
-In branchu finalProject e proiectul final corect
+In branchul finalProject se afla varianta finala a proiectului.
